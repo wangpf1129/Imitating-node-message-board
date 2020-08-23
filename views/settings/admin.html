@@ -1,0 +1,135 @@
+{{extend '../_layouts/home.html'}}
+
+{{block 'title'}}{{'多人博客 - 首页'}}{{/block}}
+
+{{block 'body'}}
+<section class="container">
+  <!-- {{include '../_partials/settings-nav.html'}} -->
+  <div class="col-md-3 list-group">
+    <a href="#" class="list-group-item disabled">用户设置</a>
+    <a href="/settings/profile" class="list-group-item ">基本信息</a>
+    <a href="/settings/admin" class="list-group-item active ">账户设置</a>
+  </div>
+  <div class="col-md-5">
+    <div class="subhead">
+      <h2>修改密码</h2>
+    </div>
+    <hr>
+    <form id="admin_form">
+      <div class="form-group">
+        <label for="exampleInputEmail1">账号</label>
+        <input type="text" class="form-control" name="email" value="{{user.email}}" readonly>
+      </div>
+      <!-- <div class="form-group">
+        <label for="exampleInputPassword1">当前密码</label>
+        <input type="text" class="form-control" id="exampleInputPassword1" name="oldpass">
+      </div> -->
+      <div class="form-group">
+        <label for="exampleInputPassword1">新的密码</label>
+        <input type="text" class="form-control" id="pwd" placeholder="" name="password">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">确认密码</label>
+        <input type="password" class="form-control" id="pwd1" placeholder="">
+      </div>
+      <button type="submit" class="btn btn-success" id="submit">保存</button>
+    </form>
+    <div class="subhead">
+      <h2>注销账号</h2>
+      <hr>
+    </div>
+    <div>
+      <p>一旦注销，不可找回，请谨慎操作</p>
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">
+        删除
+      </button>
+      <!-- Modal -->
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                  aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">再次确认</h4>
+            </div>
+            <div class="modal-body">
+              确定要注销账号吗？
+            </div>
+            <div class="modal-footer">
+              <form id="suer_form">
+                <a href="/logoff" class="btn btn-primary">确定</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+  </div>
+</section>
+{{/block}}
+{{block 'script'}}
+
+<script>
+  var pwd1 = document.getElementById("pwd");
+  var pwd2 = document.getElementById("pwd1");
+  console.log(pwd1, pwd2);
+  pwd2.onblur = function () {
+    if (pwd1.value == pwd2.value) {
+      document.getElementById("submit").disabled = false;
+    } else {
+      document.getElementById("submit").disabled = true;
+      window.alert('密码不一致')
+    }
+  }
+
+
+  $('#admin_form').on('submit', function (e) {
+    e.preventDefault()
+    let formData = $(this).serialize()
+    // console.log(formData)
+    $.ajax({
+      url: '/settings/admin',
+      type: 'POST',
+      data: formData,
+      dataType: 'json',
+      success: function (data) {
+        var err_code = data.err_code
+        if (err_code === 0) {
+          window.alert('更改成功，即将跳转')
+          // 服务端重定向针对异步请求无效
+          window.location.href = '/'
+        } else if (err_code === 500) {
+          window.alert('服务器忙，请稍后重试！')
+        } else if (err_code === 1) {
+          window.alert('Password in Error ')
+        }
+      }
+    })
+  })
+  // $('#sure_form').on('submit', function (e) {
+  //   e.preventDefault()
+  //   let formData = $(this).serialize()
+  //   // console.log(formData)
+  //   $.ajax({
+  //     url: '/settings/admin',
+  //     type: 'POST',
+  //     data: formData,
+  //     dataType: 'json',
+  //     success: function (data) {
+  //       var err_code = data.err_code
+  //       if (err_code === 0) {
+  //         window.alert('删除成功，即将跳转到首页')
+  //         // 服务端重定向针对异步请求无效
+  //         window.location.href = '/'
+  //       } else if (err_code === 500) {
+  //         window.alert('服务器忙，请稍后重试！')
+  //       }
+  //     }
+  //   })
+  // })
+</script>
+
+{{/block}}
